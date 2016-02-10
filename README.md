@@ -7,7 +7,7 @@ I want to have a solution to switch between different remote notification sounds
 The ```Library/Sounds``` directory should work as notification sound directory, have a look at the documentation at:
 [Apple Remote Notification Documentation](https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/IPhoneOSClientImp.html#//apple_ref/doc/uid/TP40008194-CH103-SW1) 
 
-So I builded a little demo app, this one uses local notifications, because they are easier to setup.
+So I have written a little demo app, this one uses local notifications, because they are easier to setup.
 
 # Steps to reproduce the problem
 - Build the app with Xcode.
