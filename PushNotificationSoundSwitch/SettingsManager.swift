@@ -10,6 +10,9 @@ import Foundation
 
 class SettingsManager {
     
+    // Interval to wait before the local push notification gets fired
+    static let pushNotificationSleepInterval: Double = 10
+    
     private let defaults = NSUserDefaults.standardUserDefaults()
     
     // Settings keys

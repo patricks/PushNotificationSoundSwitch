@@ -34,9 +34,9 @@ class NotificationsSoundsTableViewController: UITableViewController {
     
     // MARK: Play Sound
     /**
-    Play the sound file from the main bundle.
+    Play the sound file from the main bundle via the AVAudioPlayer.
     */
-    private func playSound(filename: String) {
+    private func playSoundViaAVAudioPlayer(filename: String) {
         if let soundPath = NSBundle.mainBundle().pathForResource(filename, ofType: "caf") {
             do {
                 let sound = try AVAudioPlayer(contentsOfURL: NSURL(fileURLWithPath: soundPath))
@@ -47,6 +47,37 @@ class NotificationsSoundsTableViewController: UITableViewController {
             }
         } else {
             print("ERROR: Can't find sound file \(filename)")
+        }
+    }
+    
+    /**
+     Play the sound file from the main bundle via the AudioToolbox.
+     */
+    private func playNotificationSoundViaAudioToolbox(filename: String) {
+        var soundFileObject: SystemSoundID = 0
+        var soundFileURLRef: CFURLRef
+        
+        // append the file extenstion
+        let filenameWithExtension = filename + ".caf"
+        
+        if filename != "default" {
+            // Get the main bundle for the app.
+            let mainBundle: CFBundleRef = CFBundleGetMainBundle()
+            
+            // Get the URL to the sound file to play. The sound property's value is the full filename including the extension.
+            soundFileURLRef = CFBundleCopyResourceURL(mainBundle, filenameWithExtension, nil, nil)
+            
+            // Create a system sound object representing the sound file.
+            AudioServicesCreateSystemSoundID(soundFileURLRef, &soundFileObject)
+            
+            // Register a function to be called when the sound is done playing. C function pointers are imported into Swift as closures.
+            AudioServicesAddSystemSoundCompletion(soundFileObject, nil, nil, { (soundFileObject, clientData) -> Void in
+                // Clean up.
+                AudioServicesDisposeSystemSoundID(soundFileObject)
+                }, nil)
+            
+            // Play the sound.
+            AudioServicesPlaySystemSound(soundFileObject)
         }
     }
     
@@ -64,7 +95,7 @@ class NotificationsSoundsTableViewController: UITableViewController {
             localNotification.alertBody = "Alert Sound: \(filename)"
             localNotification.soundName = soundfileName
             
-            localNotification.fireDate = NSDate(timeIntervalSinceNow: 5)
+            localNotification.fireDate = NSDate(timeIntervalSinceNow: SettingsManager.pushNotificationSleepInterval)
             
             UIApplication.sharedApplication().scheduleLocalNotification(localNotification)
             //UIApplication.sharedApplication().presentLocalNotificationNow(localNotification)
@@ -185,7 +216,10 @@ extension NotificationsSoundsTableViewController {
             removeNotificationSound()
         case .Custom:
             if let filename = notificationSound.filename {
-                playSound(filename)
+                
+                // choose between the playback modes here
+                //playSoundViaAVAudioPlayer(filename)
+                playNotificationSoundViaAudioToolbox(filename)
                 
                 storeNotificationSound(notificationSound)
             }

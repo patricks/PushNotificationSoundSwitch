@@ -33,7 +33,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     private func showAppActiveDialog() {
         let alertTitle = "App is in foreground"
-        let alertMessage = "After selecting the sound, you have 5 seconds to put the app in the background"
+        let alertMessage = "After selecting the sound, you have \(SettingsManager.pushNotificationSleepInterval) seconds to put the app in the background"
         
         let alertController = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .Alert)
         
